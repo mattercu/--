@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>wispbyte.com | 502: Bad gateway</title>
+<style>
+:root{
+  --ink:#404040; --text:#333; --link:#2f7bbf; --muted:#7a7a7a;
+  --ok:#9bca3e; --err:#bd2426; --panel:#ebebeb; --line:#d9d9d9; --badge:#dedede;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;min-height:100vh;min-height:100dvh;padding-bottom:97px;background:#fff;
+  color:var(--text);font-size:16px;line-height:1.5;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif;
+}
+.page{transition:opacity .12s linear}
+.wrap{max-width:960px;margin:0 auto;padding:0 32px}
+
+/* header */
+header{padding:84px 0 29px}
+h1{margin:0;font-size:36px;font-weight:400;line-height:1.2;color:var(--ink)}
+.badge{
+  display:inline-block;vertical-align:middle;margin-left:8px;padding:0 8px;
+  height:22px;line-height:22px;border-radius:11px;background:var(--badge);
+  font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;
+}
+header p{margin:0;line-height:24px}
+header p+p{margin-top:8px}
+.link{color:var(--link)}
+
+/* status panel */
+.status{
+  background:var(--panel);
+  box-shadow:inset 0 10px 8px -8px rgba(0,0,0,.12),inset 0 -10px 8px -8px rgba(0,0,0,.12);
+}
+.row{display:flex;align-items:center;justify-content:space-between;height:116px}
+.row+.row{border-top:1px solid var(--line)}
+.loc{display:block;line-height:24px;color:var(--ink)}
+.what{display:block;font-size:24px;font-weight:300;line-height:28px;color:var(--muted)}
+.state{color:var(--ok)}
+.row[data-state=err] .state{color:var(--err)}
+.ico{
+  flex:none;width:47px;height:47px;padding:0;border:0;border-radius:50%;
+  display:grid;place-items:center;cursor:pointer;background:var(--ok);
+}
+.row[data-state=err] .ico{background:var(--err)}
+.ico svg{width:47px;height:47px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.row[data-state=ok] .x,.row[data-state=err] .c{display:none}
+
+/* info */
+.info{padding-top:34px;padding-bottom:40px}
+h2{margin:0 0 18px;font-size:30px;font-weight:400;line-height:1.2;color:var(--ink)}
+.info p{margin:0;line-height:24px}
+.info section+section{margin-top:37px}
+
+/* footer */
+footer .wrap{padding-bottom:40px}
+.foot{border-top:1px solid var(--line);padding-top:20px;font-size:13px;line-height:20px;color:var(--text)}
+.foot strong{font-weight:600}
+
+/* Safari iOS 26 bottom bar: liquid glass, collapses to a small pill while scrolling down */
+.bar{
+  --fg:#1c1c1e;--dim:rgba(60,60,67,.32);
+  --in:.46s cubic-bezier(.22,1.25,.36,1);   /* expand: slight spring */
+  --out:.3s cubic-bezier(.32,.72,0,1);      /* collapse */
+  --t:var(--in);
+  position:fixed;left:0;right:0;bottom:0;height:0;z-index:10;pointer-events:none;
+}
+.bar.min{--t:var(--out)}
+/* soft scroll-edge fade under the full bar */
+.bar::before{
+  content:"";position:fixed;left:0;right:0;bottom:0;height:128px;pointer-events:none;
+  background:linear-gradient(to top,rgba(255,255,255,.94),rgba(255,255,255,.6) 42%,rgba(255,255,255,0));
+  transition:opacity var(--t);
+}
+.bar.min::before{opacity:0}
+.ctl{
+  position:absolute;left:50%;bottom:34px;width:min(100% - 68px,560px);height:48px;
+  transform:translateX(-50%);display:flex;align-items:center;gap:8px;color:var(--fg);pointer-events:auto;
+  transition:width var(--t),height var(--t),bottom var(--t);
+}
+.bar.min .ctl{width:116px;height:32px;bottom:14px}
+
+/* liquid glass */
+.circ,.pill{
+  background:linear-gradient(180deg,rgba(255,255,255,.68),rgba(243,245,249,.46));
+  -webkit-backdrop-filter:blur(16px) saturate(1.9) brightness(1.02);
+  backdrop-filter:blur(16px) saturate(1.9) brightness(1.02);
+  box-shadow:
+    0 0 0 .5px rgba(0,0,0,.08),
+    0 8px 24px rgba(0,0,0,.10),
+    0 1px 4px rgba(0,0,0,.06),
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 1px rgba(255,255,255,.5),
+    inset 0 0 12px rgba(255,255,255,.35);
+}
+.circ{
+  flex:none;width:48px;height:48px;padding:0;border:0;border-radius:50%;color:inherit;
+  display:grid;place-items:center;cursor:pointer;overflow:hidden;
+  transition:width var(--t),margin var(--t),opacity var(--t),transform var(--t);
+}
+.circ:active{transform:scale(.92)}
+.circ svg{width:48px;height:48px;flex:none}
+.back{color:var(--dim);cursor:default}
+.back svg{fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.more{cursor:default}
+.more svg{fill:currentColor}
+.bar.min .circ{width:0;opacity:0;transform:scale(.4);pointer-events:none}
+.bar.min .back{margin-right:-8px}
+.bar.min .more{margin-left:-8px}
+
+.pill{
+  position:relative;flex:1;min-width:0;height:47px;border-radius:24px;
+  display:flex;align-items:center;overflow:hidden;transition:height var(--t);
+}
+.bar.min .pill{height:32px;cursor:pointer}
+.pill svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pill .ic{
+  flex:none;width:46px;height:100%;display:grid;place-items:center;overflow:hidden;
+  transition:width var(--t),opacity var(--t);
+}
+.pill button.ic{border:0;background:none;padding:0;color:inherit;cursor:pointer}
+.bar.min .pill .ic{width:0;opacity:0}
+.url{
+  flex:1;min-width:0;text-align:center;font-size:17px;line-height:1.3;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;outline:none;color:var(--fg);caret-color:#0a84ff;transition:font-size var(--t);
+}
+.bar.min .url{font-size:12.5px;pointer-events:none}
+.prog{position:absolute;left:0;bottom:0;height:2.5px;width:0;background:#3478f6}
+.pill:not([data-load]) .prog,.pill[data-load] .rl,.pill:not([data-load]) .xx{display:none}
+@media (prefers-reduced-motion:reduce){.bar,.bar *,.bar::before{transition-duration:.01ms!important}}
+
+[contenteditable]{caret-color:var(--link)}
+[contenteditable]:focus{outline:2px dashed rgba(47,123,191,.5);outline-offset:3px;border-radius:3px}
+.bar .url:focus{outline:none}
+</style>
+</head>
+<body>
+
+<div class="page" id="page">
+  <header>
+    <div class="wrap">
+      <h1><span data-e>Bad gateway</span><span class="badge" data-e>Error code 502</span></h1>
+      <p data-e>Visit <span class="link">cloudflare.com</span> for more information.</p>
+      <p data-e>2026-04-05 20:04:09 UTC</p>
+    </div>
+  </header>
+
+  <section class="status">
+    <div class="wrap">
+      <div class="row" data-state="ok">
+        <div>
+          <span class="loc" data-e>You</span>
+          <span class="what"><span class="name" data-e>Browser</span> <span class="state" data-e>Working</span></span>
+        </div>
+        <button class="ico" type="button" aria-label="Toggle status">
+          <svg class="c" viewBox="0 0 47 47"><polyline points="15.5,24.5 21,30 31.5,18"/></svg>
+          <svg class="x" viewBox="0 0 47 47"><path d="M18.5 18.5l10 10M28.5 18.5l-10 10"/></svg>
+        </button>
+      </div>
+      <div class="row" data-state="ok">
+        <div>
+          <span class="loc" data-e>Singapore</span>
+          <span class="what"><span class="name link" data-e>Cloudflare</span> <span class="state" data-e>Working</span></span>
+        </div>
+        <button class="ico" type="button" aria-label="Toggle status">
+          <svg class="c" viewBox="0 0 47 47"><polyline points="15.5,24.5 21,30 31.5,18"/></svg>
+          <svg class="x" viewBox="0 0 47 47"><path d="M18.5 18.5l10 10M28.5 18.5l-10 10"/></svg>
+        </button>
+      </div>
+      <div class="row" data-state="err">
+        <div>
+          <span class="loc" data-e>wispbyte.com</span>
+          <span class="what"><span class="name" data-e>Host</span> <span class="state" data-e>Error</span></span>
+        </div>
+        <button class="ico" type="button" aria-label="Toggle status">
+          <svg class="c" viewBox="0 0 47 47"><polyline points="15.5,24.5 21,30 31.5,18"/></svg>
+          <svg class="x" viewBox="0 0 47 47"><path d="M18.5 18.5l10 10M28.5 18.5l-10 10"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <main class="wrap info">
+    <section>
+      <h2 data-e>What happened?</h2>
+      <p data-e>The web server reported a bad gateway error.</p>
+    </section>
+    <section>
+      <h2 data-e>What can I do?</h2>
+      <p data-e>Please try again in a few minutes.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot">
+        <span data-e>Cloudflare Ray ID:</span> <strong data-e>9b2f4c1d7e8a3056</strong>
+        <span>&bull;</span>
+        <span data-e>Your IP:</span> <span id="ip" data-e>Click to reveal</span>
+        <span>&bull;</span>
+        <span data-e>Performance &amp; security by</span> <span class="link" data-e>Cloudflare</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<div class="bar" id="bar">
+  <div class="ctl">
+    <button class="circ back" type="button" aria-label="Back">
+      <svg viewBox="0 0 48 48"><path d="M28 15.5L19.5 24L28 32.5"/></svg>
+    </button>
+    <div class="pill" id="pill">
+      <span class="ic" aria-hidden="true">
+        <svg viewBox="0 0 20 20"><rect x="2" y="2.5" width="16" height="8.5" rx="2"/><path d="M2.5 14.6h15M2.5 18h9"/></svg>
+      </span>
+      <span class="url" id="url" data-e>wispbyte.com</span>
+      <button class="ic" id="rt" type="button" aria-label="Reload">
+        <svg class="xx" viewBox="0 0 20 20" style="stroke-width:2.2"><path d="M3.5 3.5l13 13M16.5 3.5l-13 13"/></svg>
+        <svg class="rl" viewBox="0 0 20 20"><path d="M16.2 10a6.2 6.2 0 1 1-2-4.6"/><path d="M14.6 2.2v3.6h-3.6"/></svg>
+      </button>
+      <div class="prog" id="prog"></div>
+    </div>
+    <button class="circ more" type="button" aria-label="More">
+      <svg viewBox="0 0 48 48"><circle cx="16" cy="24" r="2"/><circle cx="24" cy="24" r="2"/><circle cx="32" cy="24" r="2"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+var $ = function (id) { return document.getElementById(id); };
+
+document.querySelectorAll('[data-e]').forEach(function (el) {
+  el.contentEditable = 'true';
+  el.spellcheck = false;
+});
+
+document.querySelectorAll('.row').forEach(function (row) {
+  var state = row.querySelector('.state');
+  row.querySelector('.ico').addEventListener('click', function () {
+    var ok = row.dataset.state !== 'ok';
+    row.dataset.state = ok ? 'ok' : 'err';
+    var current = state.textContent.trim();
+    if (current === 'Working' || current === 'Error') state.textContent = ok ? 'Working' : 'Error';
+  });
+});
+
+$('ip').addEventListener('click', function () {
+  if (this.textContent.trim() === 'Click to reveal') this.textContent = '203.0.113.42';
+});
+
+/* Safari address field: centered, shows host only while not editing */
+var url = $('url'), fullUrl = url.textContent;
+function showHost() {
+  var host = fullUrl.trim().replace(/^[a-z][a-z0-9+.-]*:\/\//i, '').replace(/^www\./i, '').split(/[\/?#]/)[0];
+  url.textContent = host || fullUrl;
+  url.scrollLeft = 0;
+}
+url.addEventListener('focus', function () {
+  url.textContent = fullUrl;
+  var range = document.createRange();
+  range.selectNodeContents(url);
+  var sel = getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+});
+url.addEventListener('blur', function () {
+  fullUrl = url.textContent.trim() || fullUrl;
+  showHost();
+});
+
+/* reload: page blanks, blue bar fills, same error page comes back; X stops it */
+var pill = $('pill'), prog = $('prog'), page = $('page'), timers = [];
+function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+function finishLoad() {
+  timers.forEach(clearTimeout);
+  timers = [];
+  page.style.opacity = 1;
+  pill.removeAttribute('data-load');
+}
+function startReload() {
+  pill.setAttribute('data-load', '');
+  prog.style.transition = 'none';
+  prog.style.width = '0';
+  void prog.offsetWidth;
+  prog.style.transition = 'width .7s cubic-bezier(.2,.8,.2,1)';
+  prog.style.width = '82%';
+  page.style.opacity = 0;
+  later(function () { page.style.opacity = 1; }, 380);
+  later(function () { prog.style.transition = 'width .2s linear'; prog.style.width = '100%'; }, 900);
+  later(finishLoad, 1150);
+}
+$('rt').addEventListener('click', function () {
+  if (pill.hasAttribute('data-load')) finishLoad(); else startReload();
+});
+
+/* bottom bar: shrinks to a small pill when scrolling down, grows back on scroll up / at top / tap */
+var bar = $('bar'), lastY = 0, acc = 0;
+function setMin(on) { bar.classList.toggle('min', on); acc = 0; }
+window.addEventListener('scroll', function () {
+  if (document.activeElement === url) return;
+  var max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  var y = Math.min(Math.max(window.pageYOffset, 0), max);   /* ignore rubber-band overscroll */
+  var dy = y - lastY;
+  lastY = y;
+  if (y <= 0) { setMin(false); return; }
+  if (!dy) return;
+  if (dy > 0) { acc = acc > 0 ? acc + dy : dy; if (acc > 10) setMin(true); }
+  else { acc = acc < 0 ? acc + dy : dy; if (acc < -6) setMin(false); }
+}, { passive: true });
+$('pill').addEventListener('click', function () {
+  if (bar.classList.contains('min')) setMin(false);
+});
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && e.target.isContentEditable) { e.preventDefault(); e.target.blur(); }
+});
+document.addEventListener('paste', function (e) {
+  if (!e.target.isContentEditable) return;
+  e.preventDefault();
+  var plain = (e.clipboardData || window.clipboardData).getData('text/plain').replace(/\s*\n\s*/g, ' ');
+  document.execCommand('insertText', false, plain);
+});
+</script>
+</body>
+</html>
